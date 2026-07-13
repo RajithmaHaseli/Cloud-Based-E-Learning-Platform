@@ -3,17 +3,32 @@ import { Link, useNavigate } from "react-router-dom";
 export default function Login() {
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
     const email = e.target.email.value;
     const password = e.target.password.value;
 
-    if (email && password) {
-      localStorage.setItem("user", JSON.stringify({ email }));
-      navigate("/dashboard");
-    } else {
-      alert("Please enter email and password");
+    try {
+      const response = await fetch("http://localhost:8080/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        localStorage.setItem("user", JSON.stringify(userData));
+        navigate("/dashboard");
+      } else {
+        const errorMsg = await response.text();
+        alert(errorMsg || "Invalid credentials");
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      alert("Could not connect to backend server");
     }
   };
 
@@ -34,4 +49,4 @@ export default function Login() {
       </form>
     </div>
   );
-}
+}
