@@ -1,33 +1,36 @@
-import { useParams, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import api from "../services/api";
 
 export default function CourseDetails() {
   const { id } = useParams();
+
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/courses/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Course not found");
-        return res.json();
-      })
-      .then((data) => {
-        setCourse(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+    const loadCourse = async () => {
+      try {
+        const response = await api.get(`/courses/${id}`);
+        setCourse(response.data);
+      } catch (err) {
         console.error(err);
+        setError("Course not found.");
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    loadCourse();
   }, [id]);
 
   if (loading) {
-    return <div className="page"><h1>Loading course details...</h1></div>;
+    return <div className="page"><p>Loading course...</p></div>;
   }
 
-  if (!course) {
-    return <div className="page"><h1>Course not found</h1></div>;
+  if (error || !course) {
+    return <div className="page"><p className="error-message">{error}</p></div>;
   }
 
   return (
@@ -36,15 +39,16 @@ export default function CourseDetails() {
       <p>{course.description}</p>
 
       {course.video && (
-        <video className="video-player" controls key={course.video}>
-          <source src={course.video} type="video/mp4" />
+        <video className="video-player" controls>
+          <source src={course.video} />
         </video>
       )}
 
       <h2>Lessons</h2>
+
       <ul className="lesson-list">
-        {course.lessons && course.lessons.map((lesson, index) => (
-          <li key={lesson.id || index}>{lesson.title || lesson}</li>
+        {course.lessons?.map((lesson) => (
+          <li key={lesson.id}>{lesson.title}</li>
         ))}
       </ul>
 
@@ -53,4 +57,4 @@ export default function CourseDetails() {
       </Link>
     </div>
   );
-}
+}

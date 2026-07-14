@@ -1,35 +1,59 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 export default function Register() {
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "student",
+  });
 
-    const name = e.target.name.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    const role = e.target.role.value.toLowerCase();
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+  };
+
+  const handleRegister = async (event) => {
+    event.preventDefault();
+
+    setMessage("");
+    setError("");
+    setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password, role }),
-      });
+      const response = await api.post("/auth/register", formData);
 
-      if (response.ok) {
-        alert("Registration successful! Please login.");
+      setMessage(response.data || "Registration successful.");
+
+      setTimeout(() => {
         navigate("/");
-      } else {
-        const errorMsg = await response.text();
-        alert(errorMsg || "Registration failed");
-      }
-    } catch (err) {
-      console.error("Registration failed:", err);
-      alert("Could not connect to backend server");
+      }, 1200);
+    } catch (requestError) {
+      console.error("Registration failed:", requestError);
+
+      const responseMessage =
+        requestError.response?.data ||
+        "Registration failed. Check whether the backend is running.";
+
+      setError(
+        typeof responseMessage === "string"
+          ? responseMessage
+          : "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,18 +61,51 @@ export default function Register() {
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleRegister}>
         <h1>Create Account</h1>
+        <p>Join the SkyLearn platform</p>
 
-        <input name="name" type="text" placeholder="Full name" required />
-        <input name="email" type="email" placeholder="Email address" required />
-        <input name="password" type="password" placeholder="Password" required />
+        {message && <div className="success-message">{message}</div>}
+        {error && <div className="error-message">{error}</div>}
 
-        <select name="role">
-          <option value="Student">Student</option>
-          <option value="Lecturer">Lecturer</option>
-          <option value="Admin">Admin</option>
+        <input
+          name="name"
+          type="text"
+          placeholder="Full name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="email"
+          type="email"
+          placeholder="Email address"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          minLength={6}
+          required
+        />
+
+        <select
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+        >
+          <option value="student">Student</option>
+          <option value="instructor">Instructor</option>
         </select>
 
-        <button type="submit">Register</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </button>
 
         <p>
           Already have an account? <Link to="/">Login</Link>
@@ -56,4 +113,4 @@ export default function Register() {
       </form>
     </div>
   );
-}
+}

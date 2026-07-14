@@ -22,7 +22,7 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <h2>CloudLearn</h2>
+      <h2>SkyLearn</h2>
       <div>
         <Link to="/dashboard">Dashboard</Link>
         <Link to="/courses">Courses</Link>

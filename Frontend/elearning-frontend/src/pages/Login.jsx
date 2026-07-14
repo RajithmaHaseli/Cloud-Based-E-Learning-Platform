@@ -1,34 +1,61 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+  };
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await api.post("/auth/login", formData);
 
-      if (response.ok) {
-        const userData = await response.json();
-        localStorage.setItem("user", JSON.stringify(userData));
-        navigate("/dashboard");
+      const user = response.data;
+
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (user.role?.toLowerCase() === "admin") {
+        navigate("/admin");
+      } else if (
+        user.role?.toLowerCase() === "instructor" ||
+        user.role?.toLowerCase() === "lecturer"
+      ) {
+        navigate("/lecturer");
       } else {
-        const errorMsg = await response.text();
-        alert(errorMsg || "Invalid credentials");
+        navigate("/dashboard");
       }
-    } catch (err) {
-      console.error("Login failed:", err);
-      alert("Could not connect to backend server");
+    } catch (requestError) {
+      console.error("Login failed:", requestError);
+
+      const message =
+        requestError.response?.data ||
+        "Unable to login. Check whether the backend is running.";
+
+      setError(
+        typeof message === "string" ? message : "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,12 +63,31 @@ export default function Login() {
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleLogin}>
         <h1>Login</h1>
-        <p>Welcome back to CloudLearn</p>
+        <p>Welcome back to SkyLearn</p>
 
-        <input name="email" type="email" placeholder="Email address" required />
-        <input name="password" type="password" placeholder="Password" required />
+        {error && <div className="error-message">{error}</div>}
 
-        <button type="submit">Login</button>
+        <input
+          name="email"
+          type="email"
+          placeholder="Email address"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
 
         <p>
           No account? <Link to="/register">Register</Link>
@@ -49,4 +95,4 @@ export default function Login() {
       </form>
     </div>
   );
-}
+}
