@@ -105,7 +105,7 @@ export default function Login() {
           />
         </div>
 
-        <button type="submit" disabled={loading} style={{ width: "100%", height: "52px", marginTop: "15px" }}>
+        <button type="submit" className="submit-btn" disabled={loading} style={{ width: "100%", marginTop: "15px" }}>
           {loading ? "Verifying Credentials..." : "Sign In"}
         </button>
 

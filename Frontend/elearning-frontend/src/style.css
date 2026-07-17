@@ -3,17 +3,17 @@
    ========================================================================== */
 
 :root {
-  --primary: #2563eb;          /* Professional Royal Blue */
-  --primary-glow: rgba(37, 99, 235, 0.15);
-  --primary-light: rgba(37, 99, 235, 0.06);
-  --primary-dark: #1d4ed8;
+  --primary: #0f766e;          /* Professional Teal / Emerald */
+  --primary-glow: rgba(15, 118, 110, 0.15);
+  --primary-light: rgba(15, 118, 110, 0.06);
+  --primary-dark: #0d5c56;
 
-  --secondary: #0ea5e9;        /* Sky Blue */
-  --secondary-glow: rgba(14, 165, 233, 0.12);
-  --secondary-light: rgba(14, 165, 233, 0.05);
+  --secondary: #10b981;        /* Emerald Green */
+  --secondary-glow: rgba(16, 185, 129, 0.12);
+  --secondary-light: rgba(16, 185, 129, 0.05);
 
-  --accent: #0284c7;           /* Accent Deep Blue */
-  --accent-glow: rgba(2, 132, 199, 0.12);
+  --accent: #059669;           /* Accent Deep Mint / Green */
+  --accent-glow: rgba(5, 150, 105, 0.12);
 
   --success: #10b981;          /* Emerald Aura */
   --success-glow: rgba(16, 185, 129, 0.12);
@@ -21,15 +21,15 @@
   --danger: #f43f5e;           /* Rose Red */
   --warning: #fbbf24;          /* Amber Yellow */
 
-  --background: #f1f5f9;       /* Soft Light Slate Gray (Easy on eyes) */
+  --background: #ebf4f0;       /* Soft Light Green Theme (Easy on eyes) */
   --surface: #ffffff;          /* Clean White Card */
-  --surface-hover: #f8fafc;
+  --surface-hover: #f5faf7;
   --surface-solid: #ffffff;
   
   --text-primary: #0f172a;     /* Deep Slate Navy (High contrast readability) */
   --text-secondary: #475569;   /* Muted Slate */
   --border: rgba(15, 23, 42, 0.08);
-  --border-focus: #2563eb;
+  --border-focus: #0f766e;
 
   --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.06);
@@ -56,6 +56,7 @@ body {
   background-color: var(--background);
   color: var(--text-primary);
   font-family: var(--font-main);
+  font-size: 15px;
   line-height: 1.6;
   min-height: 100vh;
   overflow-x: hidden;
@@ -74,7 +75,7 @@ body::before {
   left: -10%;
   width: 50vw;
   height: 50vw;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.06) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 65%);
   filter: blur(80px);
   z-index: -1;
   pointer-events: none;
@@ -88,7 +89,7 @@ body::after {
   right: -10%;
   width: 55vw;
   height: 55vw;
-  background: radial-gradient(circle, rgba(14, 165, 233, 0.05) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(15, 118, 110, 0.05) 0%, transparent 65%);
   filter: blur(100px);
   z-index: -1;
   pointer-events: none;
@@ -208,17 +209,17 @@ body::after {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
-  padding: 12px 28px;
+  min-height: 44px;
+  padding: 10px 24px;
   border: 0;
-  border-radius: var(--radius-md);
-  font-weight: 800;
-  font-size: 0.96rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.90rem;
   text-decoration: none;
   cursor: pointer;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: #ffffff;
-  box-shadow: 0 4px 15px var(--primary-glow);
+  box-shadow: 0 4px 12px var(--primary-glow);
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
@@ -254,9 +255,9 @@ body::after {
 
 .page > h1 {
   margin: 0 0 12px;
-  font-size: clamp(2.5rem, 6vw, 3.2rem);
-  font-weight: 900;
-  letter-spacing: -1.2px;
+  font-size: clamp(1.8rem, 4vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: -0.8px;
   background: linear-gradient(135deg, #0f172a 10%, #1e293b 80%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -264,9 +265,9 @@ body::after {
 
 .page > p {
   max-width: 750px;
-  margin: 0 0 40px;
+  margin: 0 0 30px;
   color: var(--text-secondary);
-  font-size: 1.08rem;
+  font-size: 0.95rem;
   font-weight: 500;
 }
 
@@ -418,16 +419,17 @@ body::after {
 }
 
 .auth-card {
-  width: min(450px, 100%);
-  padding: 50px 40px;
+  width: min(420px, 100%);
+  padding: 40px 32px;
   border-top: 4px solid var(--primary) !important;
   box-shadow: var(--shadow-lg);
+  border-radius: 16px !important;
 }
 
 .auth-card h1 {
-  font-size: 2.4rem;
-  font-weight: 900;
-  margin-bottom: 10px;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 8px;
   text-align: center;
   letter-spacing: -0.5px;
   color: var(--text-primary);
@@ -436,7 +438,8 @@ body::after {
 .auth-card p {
   color: var(--text-secondary);
   text-align: center;
-  margin-bottom: 35px;
+  font-size: 0.94rem;
+  margin-bottom: 24px;
 }
 
 input[type="text"],
@@ -450,14 +453,14 @@ select,
 .assignment-card textarea,
 .assignment-card select {
   width: 100%;
-  min-height: 52px;
-  padding: 0 18px;
+  min-height: 44px;
+  padding: 0 16px;
   background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.98rem;
+  font-size: 0.92rem;
   outline: none;
   transition: all 0.2s ease;
 }
@@ -783,4 +786,35 @@ input[type="file"]::file-selector-button:hover {
   .navbar button {
     width: 100%;
   }
+}
+
+.auth-card .form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.auth-card .form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.auth-footer {
+  margin-top: 20px;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.auth-footer a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
 }

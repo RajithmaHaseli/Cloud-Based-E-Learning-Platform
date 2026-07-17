@@ -94,7 +94,7 @@ export default function Progress() {
                 </code>
 
                 {sub.feedback && (
-                  <div style={{ padding: "15px 20px", background: "rgba(37, 99, 235, 0.06)", border: "1px solid rgba(37, 99, 235, 0.15)", borderRadius: "8px", marginTop: "15px" }}>
+                  <div style={{ padding: "15px 20px", background: "rgba(16, 185, 129, 0.06)", border: "1px solid rgba(16, 185, 129, 0.15)", borderRadius: "8px", marginTop: "15px" }}>
                     <p style={{ margin: "0 0 5px 0", color: "var(--secondary)", fontWeight: "800" }}>Instructor Comments & Feedback:</p>
                     <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.95rem", color: "var(--text-primary)" }}>"{sub.feedback}"</p>
                   </div>

@@ -56,7 +56,7 @@ export default function Dashboard() {
           <p>Quizzes Completed</p>
         </div>
 
-        <div className="stat-card" style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.02))", border: "1px solid rgba(99, 102, 241, 0.3)" }}>
+        <div className="stat-card" style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.02))", border: "1px solid rgba(16, 185, 129, 0.3)" }}>
           <h2 style={{ color: "var(--primary)" }}>{avgProgress}%</h2>
           <p>Average Progress</p>
         </div>
