@@ -59,14 +59,14 @@ export default function Register() {
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        
+
         {/* Branding header */}
         <div style={{ textAlign: "center", marginBottom: "5px" }}>
-          <span style={{ 
-            fontSize: "2rem", 
-            fontWeight: "900", 
-            background: "linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)", 
-            WebkitBackgroundClip: "text", 
+          <span style={{
+            fontSize: "2rem",
+            fontWeight: "900",
+            background: "linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)",
+            WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             letterSpacing: "-0.5px"
           }}>
