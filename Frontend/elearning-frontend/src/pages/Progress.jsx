@@ -66,7 +66,7 @@ export default function Progress() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
             {progressData.assignmentSubmissions.map((sub) => (
-              <div className="progress-card" key={sub.id} style={{ borderLeft: "6px solid var(--secondary)" }}>
+              <div className="progress-card" key={sub.id} style={{ borderLeft: "6px solid var(--secondary) padding:14px"}}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "15px", flexWrap: "wrap", gap: "10px" }}>
                   <h3 style={{ margin: 0 }}>{sub.courseTitle}</h3>
                   {sub.grade ? (

@@ -3,17 +3,17 @@
    ========================================================================== */
 
 :root {
-  --primary: #0f766e;          /* Professional Teal / Emerald */
-  --primary-glow: rgba(15, 118, 110, 0.15);
-  --primary-light: rgba(15, 118, 110, 0.06);
-  --primary-dark: #0d5c56;
+  --primary: #165ccd;          /* Deep Cloud Teal */
+  --primary-glow: rgba(28, 205, 222, 0.15);
+  --primary-light: rgba(14, 124, 134, 0.06);
+  --primary-dark: #04045f;
 
-  --secondary: #10b981;        /* Emerald Green */
-  --secondary-glow: rgba(16, 185, 129, 0.12);
-  --secondary-light: rgba(16, 185, 129, 0.05);
+  --secondary: #0945c7;        /* Sky Blue */
+  --secondary-glow: rgba(37, 99, 235, 0.12);
+  --secondary-light: rgba(37, 99, 235, 0.05);
 
-  --accent: #059669;           /* Accent Deep Mint / Green */
-  --accent-glow: rgba(5, 150, 105, 0.12);
+  --accent: #f59e0b;           /* Warm Amber */
+  --accent-glow: rgba(245, 158, 11, 0.12);
 
   --success: #10b981;          /* Emerald Aura */
   --success-glow: rgba(16, 185, 129, 0.12);
@@ -21,15 +21,15 @@
   --danger: #f43f5e;           /* Rose Red */
   --warning: #fbbf24;          /* Amber Yellow */
 
-  --background: #ebf4f0;       /* Soft Light Green Theme (Easy on eyes) */
+  --background: #e9f8fb;       /* Soft Light Blue-Teal Theme (Easy on eyes) */
   --surface: #ffffff;          /* Clean White Card */
-  --surface-hover: #f5faf7;
+  --surface-hover: #f4f9fa;
   --surface-solid: #ffffff;
   
   --text-primary: #0f172a;     /* Deep Slate Navy (High contrast readability) */
   --text-secondary: #475569;   /* Muted Slate */
   --border: rgba(15, 23, 42, 0.08);
-  --border-focus: #0f766e;
+  --border-focus: #0e7c86;
 
   --shadow-sm: 0 2px 10px rgba(15, 23, 42, 0.04);
   --shadow-md: 0 10px 30px rgba(15, 23, 42, 0.06);
@@ -146,7 +146,7 @@ body::after {
   align-items: center;
   justify-content: space-between;
   gap: 30px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(156, 187, 237, 0.989);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid var(--border);
