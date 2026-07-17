@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../services/api";
 
 export default function Assignment() {
   const [courses, setCourses] = useState([]);
@@ -8,14 +9,16 @@ export default function Assignment() {
   const [title, setTitle] = useState("");
 
   useEffect(() => {
-    // Fetch courses list for selecting course
-    fetch("http://localhost:8080/api/courses")
-      .then((res) => res.json())
-      .then((data) => {
-        setCourses(data);
-        if (data.length > 0) setSelectedCourseId(data[0].id);
+    // Fetch courses list safely
+    api.get("/courses")
+      .then((res) => {
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setCourses(data);
+          if (data.length > 0) setSelectedCourseId(data[0].id);
+        }
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Failed to load courses:", err));
   }, []);
 
   const handleSubmit = async (e) => {
@@ -38,15 +41,9 @@ export default function Assignment() {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/api/assignments/submit", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await api.post("/assignments/submit", payload);
 
-      if (response.ok) {
+      if (response.status === 200 || response.status === 201) {
         alert("Assignment submitted successfully to cloud storage!");
         setTitle("");
         setDescription("");
@@ -61,47 +58,73 @@ export default function Assignment() {
   };
 
   return (
-    <div className="page">
-      <h1>Assignment Submission</h1>
+    <div className="page assignment-page">
+      <div style={{ textAlign: "center", marginBottom: "40px" }}>
+        <h1>Assignment Submission</h1>
+        <p style={{ color: "var(--text-secondary)", maxWidth: "600px", margin: "0 auto" }}>
+          Submit your work summaries and files directly to SkyLearn's secure cloud storage.
+        </p>
+      </div>
 
-      <form className="assignment-card" onSubmit={handleSubmit}>
-        <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Select Course</label>
-        <select 
-          value={selectedCourseId} 
-          onChange={(e) => setSelectedCourseId(e.target.value)}
-          style={{ width: "100%", padding: "10px", marginBottom: "15px", borderRadius: "5px", border: "1px solid #ccc" }}
-        >
-          {courses.map(course => (
-            <option key={course.id} value={course.id}>{course.title}</option>
-          ))}
-        </select>
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <form className="assignment-card" onSubmit={handleSubmit} style={{ width: "min(680px, 100%)", padding: "45px 40px", display: "flex", flexDirection: "column", gap: "20px" }}>
+          <h2 style={{ fontSize: "1.35rem", fontWeight: "800", marginBottom: "10px", borderBottom: "1px solid var(--border)", paddingBottom: "12px", color: "#fff" }}>
+            Submission Details
+          </h2>
 
-        <input 
-          type="text" 
-          placeholder="Assignment title" 
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required 
-        />
+          <div className="form-group">
+            <label>Select Associated Course</label>
+            <select 
+              value={selectedCourseId} 
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+            >
+              {courses.map(course => (
+                <option key={course.id} value={course.id}>{course.title}</option>
+              ))}
+            </select>
+          </div>
 
-        <textarea
-          placeholder="Write a short description"
-          rows="5"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          required
-        ></textarea>
+          <div className="form-group">
+            <label>Assignment Title</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Cloud Security Architecture Case Study" 
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required 
+            />
+          </div>
 
-        <input
-          type="file"
-          onChange={(e) => setFileName(e.target.files[0]?.name)}
-          required
-        />
+          <div className="form-group">
+            <label>Short Summary / Explanation</label>
+            <textarea
+              placeholder="Provide a brief explanation of your solution steps..."
+              rows="5"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            ></textarea>
+          </div>
 
-        {fileName && <p>Selected file (prepared for S3 upload): {fileName}</p>}
+          <div className="form-group">
+            <label>Upload Solution Document</label>
+            <input
+              type="file"
+              onChange={(e) => setFileName(e.target.files[0]?.name)}
+              required
+            />
+            {fileName && (
+              <p style={{ fontSize: "0.85rem", color: "var(--success)", fontWeight: "600", marginTop: "8px" }}>
+                ✓ Selected file: {fileName} (Prepared for secure upload)
+              </p>
+            )}
+          </div>
 
-        <button type="submit">Submit Assignment</button>
-      </form>
+          <button type="submit" style={{ width: "100%", height: "52px", marginTop: "10px" }}>
+            Submit to Cloud Storage
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+}

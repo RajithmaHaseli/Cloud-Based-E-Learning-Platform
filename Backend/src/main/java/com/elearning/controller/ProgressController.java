@@ -1,7 +1,7 @@
 package com.elearning.controller;
 
 import com.elearning.repository.*;
-import lombok.Data;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

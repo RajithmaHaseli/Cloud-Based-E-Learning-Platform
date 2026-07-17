@@ -20,6 +20,10 @@ public class AssignmentSubmission {
     private String fileUrl; // Path or URL to file (mock or actual S3 path)
     private LocalDateTime submittedAt = LocalDateTime.now();
 
+    private String grade;
+    private String feedback;
+    private LocalDateTime gradedAt;
+
     public AssignmentSubmission() {}
 
     public AssignmentSubmission(Long id, String studentEmail, Long courseId, String courseTitle, String submissionText, String fileUrl, LocalDateTime submittedAt) {
@@ -86,5 +90,29 @@ public class AssignmentSubmission {
 
     public void setSubmittedAt(LocalDateTime submittedAt) {
         this.submittedAt = submittedAt;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public LocalDateTime getGradedAt() {
+        return gradedAt;
+    }
+
+    public void setGradedAt(LocalDateTime gradedAt) {
+        this.gradedAt = gradedAt;
     }
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import api from "../services/api";
 
 export default function Progress() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -7,16 +8,17 @@ export default function Progress() {
 
   useEffect(() => {
     if (user && user.email) {
-      fetch(`http://localhost:8080/api/progress/student/${user.email}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setProgressData(data);
+      const loadProgress = async () => {
+        try {
+          const res = await api.get(`/progress/student/${user.email}`);
+          setProgressData(res.data);
+        } catch (err) {
+          console.error("Failed to load progress details:", err);
+        } finally {
           setLoading(false);
-        })
-        .catch((err) => {
-          console.error(err);
-          setLoading(false);
-        });
+        }
+      };
+      loadProgress();
     } else {
       setLoading(false);
     }
@@ -27,41 +29,87 @@ export default function Progress() {
   }
 
   return (
-    <div className="page">
+    <div className="page progress-page">
       <h1>My Learning Progress & Grades</h1>
+      <p>Review your grades, quiz scores, and assignment feedback.</p>
 
-      <div style={{ marginBottom: "30px" }}>
+      <div style={{ marginBottom: "40px" }}>
         <h2>Quiz Submissions</h2>
         {progressData.quizSubmissions.length === 0 ? (
-          <p>No quizzes submitted yet.</p>
+          <p style={{ color: "var(--text-secondary)" }}>No quizzes submitted yet.</p>
         ) : (
-          progressData.quizSubmissions.map((sub) => (
-            <div className="progress-card" key={sub.id} style={{ borderLeft: "5px solid #2ecc71" }}>
-              <h3>{sub.courseTitle}</h3>
-              <p><strong>Score:</strong> {sub.score} / {sub.totalQuestions} ({Math.round((sub.score / sub.totalQuestions) * 100)}%)</p>
-              <small>Submitted: {new Date(sub.submittedAt).toLocaleString()}</small>
-            </div>
-          ))
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
+            {progressData.quizSubmissions.map((sub) => (
+              <div className="progress-card" key={sub.id} style={{ borderLeft: "6px solid var(--success)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <h3 style={{ margin: "0 0 10px 0" }}>{sub.courseTitle}</h3>
+                  <p style={{ fontSize: "1.2rem", margin: "10px 0" }}>
+                    <strong>Score:</strong> <span style={{ color: "var(--success)", fontWeight: "800" }}>{sub.score}</span> / {sub.totalQuestions}
+                  </p>
+                  <div className="grade-badge pass" style={{ fontSize: "0.8rem", marginBottom: "15px" }}>
+                    {Math.round((sub.score / sub.totalQuestions) * 100)}% Pass Rate
+                  </div>
+                </div>
+                <small style={{ color: "var(--text-secondary)" }}>
+                  Submitted: {new Date(sub.submittedAt).toLocaleString()}
+                </small>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 
       <div>
-        <h2>Assignment Submissions</h2>
+        <h2>Assignment Submissions & Evaluation</h2>
         {progressData.assignmentSubmissions.length === 0 ? (
-          <p>No assignments submitted yet.</p>
+          <p style={{ color: "var(--text-secondary)" }}>No assignments submitted yet.</p>
         ) : (
-          progressData.assignmentSubmissions.map((sub) => (
-            <div className="progress-card" key={sub.id} style={{ borderLeft: "5px solid #3498db" }}>
-              <h3>{sub.courseTitle}</h3>
-              <p><strong>S3 Cloud Storage Location:</strong></p>
-              <code style={{ display: "block", background: "#f8f9fa", padding: "8px", borderRadius: "4px", margin: "5px 0" }}>
-                {sub.fileUrl}
-              </code>
-              <small>Submitted: {new Date(sub.submittedAt).toLocaleString()}</small>
-            </div>
-          ))
+          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            {progressData.assignmentSubmissions.map((sub) => (
+              <div className="progress-card" key={sub.id} style={{ borderLeft: "6px solid var(--secondary)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "15px", flexWrap: "wrap", gap: "10px" }}>
+                  <h3 style={{ margin: 0 }}>{sub.courseTitle}</h3>
+                  {sub.grade ? (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                      <span className="grade-badge pass" style={{ fontSize: "1.1rem", padding: "6px 14px" }}>Grade: {sub.grade}</span>
+                      {sub.gradedAt && (
+                        <small style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "4px" }}>
+                          Graded: {new Date(sub.gradedAt).toLocaleDateString()}
+                        </small>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="grade-badge" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-secondary)" }}>Pending Evaluation</span>
+                  )}
+                </div>
+
+                <p style={{ margin: "10px 0" }}><strong>Submission Notes:</strong></p>
+                <div style={{ padding: "12px 16px", background: "rgba(255, 255, 255, 0.02)", borderRadius: "8px", fontSize: "0.95rem", color: "var(--text-secondary)", border: "1px solid var(--border)", marginBottom: "15px", whiteSpace: "pre-wrap" }}>
+                  {sub.submissionText}
+                </div>
+
+                <p style={{ margin: "10px 0" }}><strong>S3 File Upload Location:</strong></p>
+                <code style={{ display: "block", background: "rgba(255, 255, 255, 0.04)", padding: "10px 14px", borderRadius: "6px", margin: "5px 0 20px 0", fontSize: "0.85rem", color: "var(--secondary)", overflowX: "auto", border: "1px solid var(--border)" }}>
+                  {sub.fileUrl}
+                </code>
+
+                {sub.feedback && (
+                  <div style={{ padding: "15px 20px", background: "rgba(37, 99, 235, 0.06)", border: "1px solid rgba(37, 99, 235, 0.15)", borderRadius: "8px", marginTop: "15px" }}>
+                    <p style={{ margin: "0 0 5px 0", color: "var(--secondary)", fontWeight: "800" }}>Instructor Comments & Feedback:</p>
+                    <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.95rem", color: "var(--text-primary)" }}>"{sub.feedback}"</p>
+                  </div>
+                )}
+
+                <div style={{ marginTop: "15px", textAlign: "right" }}>
+                  <small style={{ color: "var(--text-secondary)" }}>
+                    Submitted: {new Date(sub.submittedAt).toLocaleString()}
+                  </small>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>
   );
-}
+}

@@ -18,6 +18,8 @@ public class Course {
     private String description;
     
     private String video; // URL of video lecture
+    private Boolean approved = true;
+    private String assignedLecturerEmail;
     
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "course_id")
@@ -80,5 +82,21 @@ public class Course {
 
     public void setLessons(List<Lesson> lessons) {
         this.lessons = lessons;
+    }
+
+    public Boolean getApproved() {
+        return approved == null ? true : approved;
+    }
+
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
+    }
+
+    public String getAssignedLecturerEmail() {
+        return assignedLecturerEmail;
+    }
+
+    public void setAssignedLecturerEmail(String assignedLecturerEmail) {
+        this.assignedLecturerEmail = assignedLecturerEmail;
     }
 }

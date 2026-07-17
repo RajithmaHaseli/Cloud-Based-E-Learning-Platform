@@ -29,7 +29,6 @@ export default function Login() {
 
     try {
       const response = await api.post("/auth/login", formData);
-
       const user = response.data;
 
       localStorage.setItem("user", JSON.stringify(user));
@@ -61,36 +60,57 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <form className="auth-card" onSubmit={handleLogin}>
-        <h1>Login</h1>
-        <p>Welcome back to SkyLearn</p>
+      <form className="auth-card" onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        
+        {/* Branding header */}
+        <div style={{ textAlign: "center", marginBottom: "5px" }}>
+          <span style={{ 
+            fontSize: "2rem", 
+            fontWeight: "900", 
+            background: "linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)", 
+            WebkitBackgroundClip: "text", 
+            WebkitTextFillColor: "transparent",
+            letterSpacing: "-0.5px"
+          }}>
+            ☁ SkyLearn
+          </span>
+        </div>
 
-        {error && <div className="error-message">{error}</div>}
+        <h1>Login Portal</h1>
+        <p>Sign in to your learning dashboard</p>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email address"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        {error && <div className="error-message" style={{ margin: "5px 0 15px 0" }}>{error}</div>}
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+        <div className="form-group">
+          <label>Email Address</label>
+          <input
+            name="email"
+            type="email"
+            placeholder="e.g. name@domain.com"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            name="password"
+            type="password"
+            placeholder="🔒 Enter password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <button type="submit" disabled={loading} style={{ width: "100%", height: "52px", marginTop: "15px" }}>
+          {loading ? "Verifying Credentials..." : "Sign In"}
         </button>
 
-        <p>
-          No account? <Link to="/register">Register</Link>
+        <p className="auth-footer">
+          Don't have an account? <Link to="/register">Register here</Link>
         </p>
       </form>
     </div>

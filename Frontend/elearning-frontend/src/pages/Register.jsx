@@ -34,7 +34,6 @@ export default function Register() {
 
     try {
       const response = await api.post("/auth/register", formData);
-
       setMessage(response.data || "Registration successful.");
 
       setTimeout(() => {
@@ -59,56 +58,84 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <form className="auth-card" onSubmit={handleRegister}>
+      <form className="auth-card" onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        
+        {/* Branding header */}
+        <div style={{ textAlign: "center", marginBottom: "5px" }}>
+          <span style={{ 
+            fontSize: "2rem", 
+            fontWeight: "900", 
+            background: "linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)", 
+            WebkitBackgroundClip: "text", 
+            WebkitTextFillColor: "transparent",
+            letterSpacing: "-0.5px"
+          }}>
+            ☁ SkyLearn
+          </span>
+        </div>
+
         <h1>Create Account</h1>
-        <p>Join the SkyLearn platform</p>
+        <p>Register as a student or instructor</p>
 
-        {message && <div className="success-message">{message}</div>}
-        {error && <div className="error-message">{error}</div>}
+        {message && <div className="success-message" style={{ margin: "5px 0 15px 0" }}>{message}</div>}
+        {error && <div className="error-message" style={{ margin: "5px 0 15px 0" }}>{error}</div>}
 
-        <input
-          name="name"
-          type="text"
-          placeholder="Full name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
+        <div className="form-group">
+          <label>Full Name</label>
+          <input
+            name="name"
+            type="text"
+            placeholder="e.g. John Doe"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email address"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+        <div className="form-group">
+          <label>Email Address</label>
+          <input
+            name="email"
+            type="email"
+            placeholder="e.g. john@example.com"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          minLength={6}
-          required
-        />
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            name="password"
+            type="password"
+            placeholder="🔒 Min. 6 characters"
+            value={formData.password}
+            onChange={handleChange}
+            minLength={6}
+            required
+          />
+        </div>
 
-        <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-        >
-          <option value="student">Student</option>
-          <option value="instructor">Instructor</option>
-        </select>
+        <div className="form-group">
+          <label>Account Role Type</label>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+          >
+            <option value="student">Student</option>
+            <option value="instructor">Instructor</option>
+            <option value="lecturer">Lecturer</option>
+          </select>
+        </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
+        <button type="submit" disabled={loading} style={{ width: "100%", height: "52px", marginTop: "15px" }}>
+          {loading ? "Registering Account..." : "Create Account"}
         </button>
 
-        <p>
-          Already have an account? <Link to="/">Login</Link>
+        <p className="auth-footer">
+          Already have an account? <Link to="/">Login here</Link>
         </p>
       </form>
     </div>

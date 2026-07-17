@@ -19,6 +19,9 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private com.elearning.repository.NotificationRepository notificationRepository;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -32,6 +35,17 @@ public class AuthController {
         user.setRole(request.getRole() != null ? request.getRole().toLowerCase() : "student");
 
         userRepository.save(user);
+
+        if ("lecturer".equalsIgnoreCase(user.getRole())) {
+            java.util.List<User> instructors = userRepository.findByRole("instructor");
+            for (User inst : instructors) {
+                com.elearning.model.Notification notif = new com.elearning.model.Notification();
+                notif.setRecipientEmail(inst.getEmail());
+                notif.setMessage("New Lecturer registered: " + user.getName() + " (" + user.getEmail() + "). Please assign a course (subject) to them.");
+                notificationRepository.save(notif);
+            }
+        }
+
         return ResponseEntity.ok("User registered successfully");
     }
 

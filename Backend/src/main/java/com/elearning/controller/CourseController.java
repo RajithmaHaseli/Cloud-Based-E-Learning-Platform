@@ -47,6 +47,49 @@ public class CourseController {
         return ResponseEntity.ok(updatedCourse);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCourse(@PathVariable Long id, @RequestBody Course courseDetails) {
+        Optional<Course> courseOpt = courseRepository.findById(id);
+        if (courseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Course course = courseOpt.get();
+        course.setTitle(courseDetails.getTitle());
+        course.setDescription(courseDetails.getDescription());
+        course.setInstructor(courseDetails.getInstructor());
+        course.setVideo(courseDetails.getVideo());
+        if (courseDetails.getLessons() != null && !courseDetails.getLessons().isEmpty()) {
+            course.getLessons().clear();
+            course.getLessons().addAll(courseDetails.getLessons());
+        }
+        Course updated = courseRepository.save(course);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<?> approveCourse(@PathVariable Long id, @RequestParam boolean approved) {
+        Optional<Course> courseOpt = courseRepository.findById(id);
+        if (courseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Course course = courseOpt.get();
+        course.setApproved(approved);
+        Course updated = courseRepository.save(course);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{id}/assign")
+    public ResponseEntity<?> assignLecturer(@PathVariable Long id, @RequestParam String email) {
+        Optional<Course> courseOpt = courseRepository.findById(id);
+        if (courseOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        Course course = courseOpt.get();
+        course.setAssignedLecturerEmail(email);
+        Course updated = courseRepository.save(course);
+        return ResponseEntity.ok(updated);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCourse(@PathVariable Long id) {
         if (!courseRepository.existsById(id)) {
