@@ -220,8 +220,8 @@ export default function CourseDetails() {
               
               {course.video && (
                 <div style={{ marginBottom: "30px" }}>
-                  <video className="video-player" controls preload="none" style={{ width: "100%", borderRadius: "var(--radius-md)" }}>
-                    <source src={course.video} />
+                  <video key={course.video} className="video-player" controls preload="none" style={{ width: "100%", borderRadius: "var(--radius-md)" }}>
+                    <source src={course.video} type="video/mp4" />
                   </video>
                 </div>
               )}

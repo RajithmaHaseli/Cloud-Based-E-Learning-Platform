@@ -65,10 +65,12 @@ public class S3Service {
             useLocalFallback = true;
         }
 
+        String baseUrl = getBaseUrl();
+
         if (useLocalFallback) {
             logger.info("Using Local Fallback to generate mock upload details for " + fileName);
-            String mockUploadUrl = "http://localhost:8080/api/s3/mock-upload/" + uniqueFileName;
-            String mockDownloadUrl = "http://localhost:8080/api/s3/mock-video-stream/" + uniqueFileName;
+            String mockUploadUrl = baseUrl + "/api/s3/mock-upload/" + uniqueFileName;
+            String mockDownloadUrl = baseUrl + "/api/s3/mock-video-stream/" + uniqueFileName;
             return new PresignedResponse(mockUploadUrl, mockDownloadUrl);
         }
 
@@ -96,9 +98,18 @@ public class S3Service {
 
         } catch (Exception e) {
             logger.warning("Failed to generate S3 Presigned URL: " + e.getMessage() + ". Falling back to local mock emulation.");
-            String mockUploadUrl = "http://localhost:8080/api/s3/mock-upload/" + uniqueFileName;
-            String mockDownloadUrl = "http://localhost:8080/api/s3/mock-video-stream/" + uniqueFileName;
+            String mockUploadUrl = baseUrl + "/api/s3/mock-upload/" + uniqueFileName;
+            String mockDownloadUrl = baseUrl + "/api/s3/mock-video-stream/" + uniqueFileName;
             return new PresignedResponse(mockUploadUrl, mockDownloadUrl);
+        }
+    }
+
+    private String getBaseUrl() {
+        try {
+            return org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath().toUriString();
+        } catch (Exception e) {
+            logger.warning("Failed to resolve dynamic base URL, falling back to localhost:8080. Error: " + e.getMessage());
+            return "http://localhost:8080";
         }
     }
 }
