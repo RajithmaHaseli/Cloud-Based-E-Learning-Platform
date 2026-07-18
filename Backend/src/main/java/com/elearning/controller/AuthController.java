@@ -66,8 +66,30 @@ public class AuthController {
         response.setName(user.getName());
         response.setEmail(user.getEmail());
         response.setRole(user.getRole());
-
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Email address not found");
+        }
+        User user = userOpt.get();
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+        return ResponseEntity.ok("Password reset successfully!");
+    }
+
+    public static class ResetPasswordRequest {
+        private String email;
+        private String password;
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
     }
 
     public static class RegisterRequest {

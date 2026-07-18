@@ -13,6 +13,7 @@ import AddCourse from "./pages/AddCourse";
 import Profile from "./pages/Profile";
 import Progress from "./pages/Progress";
 import Videos from "./pages/Videos";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Route Guard component
 function ProtectedRoute({ children, allowedRoles }) {
@@ -91,6 +92,7 @@ function Navbar() {
             <Link to="/admin">Admin Console</Link>
             <Link to="/courses">Courses</Link>
             <Link to="/videos">Video Lectures</Link>
+            <Link to="/add-course">Add Course</Link>
           </>
         )}
         <Link to="/profile">Profile</Link>
@@ -108,6 +110,7 @@ export default function App() {
         {/* Public Routes */}
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Student Routes */}
         <Route path="/dashboard" element={

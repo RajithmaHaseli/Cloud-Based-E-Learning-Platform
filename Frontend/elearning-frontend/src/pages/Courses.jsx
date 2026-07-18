@@ -52,8 +52,9 @@ export default function Courses() {
     if (user?.role?.toLowerCase() !== "admin" && !course.approved) {
       return false;
     }
-    // If user is lecturer, only show their assigned courses
-    if (user?.role?.toLowerCase() === "lecturer" && course.assignedLecturerEmail !== user.email) {
+    // If user is lecturer or instructor, only show their assigned courses
+    const roleLower = user?.role?.toLowerCase();
+    if ((roleLower === "lecturer" || roleLower === "instructor") && course.assignedLecturerEmail !== user.email) {
       return false;
     }
     const matchQuery =

@@ -75,7 +75,7 @@ export default function Register() {
         </div>
 
         <h1>Create Account</h1>
-        <p>Register as a student or instructor</p>
+        <p>Register as a student or lecturer</p>
 
         {message && <div className="success-message" style={{ margin: "5px 0 15px 0" }}>{message}</div>}
         {error && <div className="error-message" style={{ margin: "5px 0 15px 0" }}>{error}</div>}
@@ -125,7 +125,6 @@ export default function Register() {
             onChange={handleChange}
           >
             <option value="student">Student</option>
-            <option value="instructor">Instructor</option>
             <option value="lecturer">Lecturer</option>
           </select>
         </div>

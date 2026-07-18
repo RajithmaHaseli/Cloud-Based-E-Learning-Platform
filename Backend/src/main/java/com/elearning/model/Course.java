@@ -21,6 +21,14 @@ public class Course {
     private Boolean approved = true;
     private String assignedLecturerEmail;
     
+    @Column(columnDefinition = "TEXT")
+    private String assignmentTitle;
+
+    @Column(columnDefinition = "TEXT")
+    private String assignmentDescription;
+
+    private String assignmentDeadline;
+    
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
     @JoinColumn(name = "course_id")
     private List<Lesson> lessons = new ArrayList<>();
@@ -98,5 +106,29 @@ public class Course {
 
     public void setAssignedLecturerEmail(String assignedLecturerEmail) {
         this.assignedLecturerEmail = assignedLecturerEmail;
+    }
+
+    public String getAssignmentTitle() {
+        return assignmentTitle;
+    }
+
+    public void setAssignmentTitle(String assignmentTitle) {
+        this.assignmentTitle = assignmentTitle;
+    }
+
+    public String getAssignmentDescription() {
+        return assignmentDescription;
+    }
+
+    public void setAssignmentDescription(String assignmentDescription) {
+        this.assignmentDescription = assignmentDescription;
+    }
+
+    public String getAssignmentDeadline() {
+        return assignmentDeadline;
+    }
+
+    public void setAssignmentDeadline(String assignmentDeadline) {
+        this.assignmentDeadline = assignmentDeadline;
     }
 }

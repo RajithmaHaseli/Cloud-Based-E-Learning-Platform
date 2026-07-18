@@ -109,8 +109,9 @@ export default function Login() {
           {loading ? "Verifying Credentials..." : "Sign In"}
         </button>
 
-        <p className="auth-footer">
-          Don't have an account? <Link to="/register">Register here</Link>
+        <p className="auth-footer" style={{ marginTop: "10px", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <span>Don't have an account? <Link to="/register">Register here</Link></span>
+          <span>Forgot password? <Link to="/forgot-password">Reset here</Link></span>
         </p>
       </form>
     </div>

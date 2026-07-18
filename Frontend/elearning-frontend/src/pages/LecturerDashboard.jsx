@@ -62,35 +62,35 @@ export default function LecturerDashboard() {
     try {
       setLoading(true);
       const [statsRes, coursesRes, assignmentsRes, quizzesRes] = await Promise.all([
-        api.get("/progress/stats"),
-        api.get("/courses"),
-        api.get("/assignments"),
-        api.get("/quizzes/submissions").catch(() => ({ data: [] })) // Fallback if no quizzes loaded
+        api.get("/progress/stats").catch(() => ({ data: { totalCourses: 0, totalAssignmentSubmissions: 0, totalQuizSubmissions: 0 } })),
+        api.get("/courses").catch(() => ({ data: [] })),
+        api.get("/assignments").catch(() => ({ data: [] })),
+        api.get("/quizzes/submissions").catch(() => ({ data: [] }))
       ]);
       
-      setStats(statsRes.data);
-      setCourses(coursesRes.data);
-      setAssignments(assignmentsRes.data);
-      setQuizzes(quizzesRes.data);
+      setStats(statsRes.data || { totalCourses: 0, totalAssignmentSubmissions: 0, totalQuizSubmissions: 0 });
+      setCourses(coursesRes.data || []);
+      setAssignments(assignmentsRes.data || []);
+      setQuizzes(quizzesRes.data || []);
 
       const [enrollRes, usersRes, tasksRes] = await Promise.all([
         api.get("/enrollments").catch(() => ({ data: [] })),
-        api.get("/users").catch(() => ({ data: [] })),
+        api.get("/users?role=student").catch(() => ({ data: [] })),
         api.get("/assignments/tasks").catch(() => ({ data: [] }))
       ]);
 
-      setEnrollments(enrollRes.data);
-      setStudents(usersRes.data.filter(u => u.role?.toLowerCase() === "student"));
-      setAssignmentTasks(tasksRes.data);
+      setEnrollments(enrollRes.data || []);
+      setStudents((usersRes.data || []).filter(u => u.role?.toLowerCase() === "student"));
+      setAssignmentTasks(tasksRes.data || []);
 
       if (isInstructor) {
         try {
           const [notifsRes, usersRes2] = await Promise.all([
-            api.get(`/notifications?email=${user.email}`),
-            api.get("/users")
+            api.get(`/notifications?email=${user.email}`).catch(() => ({ data: [] })),
+            api.get("/users?role=lecturer").catch(() => ({ data: [] }))
           ]);
-          setNotifications(notifsRes.data);
-          setLecturers(usersRes2.data.filter(u => u.role?.toLowerCase() === "lecturer"));
+          setNotifications(notifsRes.data || []);
+          setLecturers((usersRes2.data || []).filter(u => u.role?.toLowerCase() === "lecturer"));
         } catch (notifErr) {
           console.error("Failed to load notifications or lecturers", notifErr);
         }
@@ -169,13 +169,147 @@ export default function LecturerDashboard() {
     }
   };
 
+  const handleEditAddLesson = () => {
+    setEditingCourse({
+      ...editingCourse,
+      lessons: [...(editingCourse.lessons || []), { title: "" }]
+    });
+  };
+
+  const handleEditRemoveLesson = (index) => {
+    const updatedLessons = (editingCourse.lessons || []).filter((_, idx) => idx !== index);
+    setEditingCourse({
+      ...editingCourse,
+      lessons: updatedLessons
+    });
+  };
+
+  const handleEditLessonFieldChange = (index, field, value) => {
+    const updatedLessons = (editingCourse.lessons || []).map((l, idx) => (idx === index ? { ...l, [field]: value } : l));
+    setEditingCourse({
+      ...editingCourse,
+      lessons: updatedLessons
+    });
+  };
+
+  const handleEditAddQuizQuestion = (lessonIndex) => {
+    const updatedLessons = (editingCourse.lessons || []).map((l, idx) => {
+      if (idx === lessonIndex) {
+        return {
+          ...l,
+          quizQuestions: [
+            ...(l.quizQuestions || []),
+            { question: "", option1: "", option2: "", option3: "", option4: "", correctAnswer: "Option 1" }
+          ]
+        };
+      }
+      return l;
+    });
+    setEditingCourse({
+      ...editingCourse,
+      lessons: updatedLessons
+    });
+  };
+
+  const handleEditRemoveQuizQuestion = (lessonIndex, questionIndex) => {
+    const updatedLessons = (editingCourse.lessons || []).map((l, idx) => {
+      if (idx === lessonIndex) {
+        const filteredQ = (l.quizQuestions || []).filter((_, qIdx) => qIdx !== questionIndex);
+        return { ...l, quizQuestions: filteredQ };
+      }
+      return l;
+    });
+    setEditingCourse({
+      ...editingCourse,
+      lessons: updatedLessons
+    });
+  };
+
+  const handleEditQuizQuestionFieldChange = (lessonIndex, questionIndex, field, value) => {
+    const updatedLessons = (editingCourse.lessons || []).map((l, idx) => {
+      if (idx === lessonIndex) {
+        const updatedQ = (l.quizQuestions || []).map((q, qIdx) => {
+          if (qIdx === questionIndex) {
+            return { ...q, [field]: value };
+          }
+          return q;
+        });
+        return { ...l, quizQuestions: updatedQ };
+      }
+      return l;
+    });
+    setEditingCourse({
+      ...editingCourse,
+      lessons: updatedLessons
+    });
+  };
+
+  const handleStartEditCourse = (c) => {
+    const preparedLessons = (c.lessons || []).map(l => {
+      let parsedQuestions = [];
+      try {
+        parsedQuestions = l.quizQuestionsJson ? JSON.parse(l.quizQuestionsJson) : [];
+      } catch (err) {
+        console.error("Error parsing quiz questions:", err);
+      }
+      if (parsedQuestions.length === 0 && l.quizQuestion) {
+        parsedQuestions.push({
+          question: l.quizQuestion,
+          option1: l.quizOption1,
+          option2: l.quizOption2,
+          option3: l.quizOption3,
+          option4: l.quizOption4,
+          correctAnswer: l.quizCorrectAnswer
+        });
+      }
+      if (parsedQuestions.length === 0) {
+        parsedQuestions.push({
+          question: "",
+          option1: "",
+          option2: "",
+          option3: "",
+          option4: "",
+          correctAnswer: "Option 1"
+        });
+      }
+      return {
+        ...l,
+        quizQuestions: parsedQuestions
+      };
+    });
+    setEditingCourse({
+      ...c,
+      lessons: preparedLessons,
+      assignmentTitle: c.assignmentTitle || "",
+      assignmentDescription: c.assignmentDescription || "",
+      assignmentDeadline: c.assignmentDeadline || ""
+    });
+  };
+
   const handleEditCourseSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.put(`/courses/${editingCourse.id}`, editingCourse);
+      const mappedLessons = (editingCourse.lessons || []).map(l => {
+        const questionsList = l.quizQuestions || [];
+        return {
+          ...l,
+          quizQuestionsJson: JSON.stringify(questionsList),
+          quizQuestion: questionsList[0]?.question || "",
+          quizOption1: questionsList[0]?.option1 || "",
+          quizOption2: questionsList[0]?.option2 || "",
+          quizOption3: questionsList[0]?.option3 || "",
+          quizOption4: questionsList[0]?.option4 || "",
+          quizCorrectAnswer: questionsList[0]?.correctAnswer || "Option 1"
+        };
+      });
+      const payload = {
+        ...editingCourse,
+        lessons: mappedLessons
+      };
+      const response = await api.put(`/courses/${editingCourse.id}`, payload);
       alert("Course details updated successfully!");
       setEditingCourse(null);
-      loadData();
+      setCourses(courses.map(c => c.id === response.data.id ? response.data : c));
     } catch (err) {
       alert("Failed to update course details");
     }
@@ -468,7 +602,7 @@ export default function LecturerDashboard() {
                                 <button 
                                   className="action-btn" 
                                   style={{ background: "var(--primary-light)", color: "var(--primary)", border: "1px solid var(--primary-light)" }}
-                                  onClick={() => setEditingCourse(c)}
+                                  onClick={() => handleStartEditCourse(c)}
                                 >
                                   Edit
                                 </button>
@@ -601,7 +735,7 @@ export default function LecturerDashboard() {
                       required
                     >
                       <option value="">-- Select Course --</option>
-                      {courses.map(c => (
+                      {courses.filter(c => !isLecturer || c.assignedLecturerEmail === user.email).map(c => (
                         <option key={c.id} value={c.id}>{c.title}</option>
                       ))}
                     </select>
@@ -1253,6 +1387,182 @@ export default function LecturerDashboard() {
                   value={editingCourse.video}
                   onChange={(e) => setEditingCourse({ ...editingCourse, video: e.target.value })}
                 />
+              </div>
+
+              {/* Assignment Spec */}
+              <div className="form-group" style={{ border: "1px solid var(--border)", padding: "15px", borderRadius: "8px", background: "rgba(255, 255, 255, 0.01)", marginTop: "15px" }}>
+                <span style={{ fontWeight: "700", fontSize: "0.9rem", color: "#fff", display: "block", marginBottom: "10px" }}>Course Final Assignment Specification</span>
+                
+                <div className="form-group" style={{ marginBottom: "10px" }}>
+                  <label>Assignment Title</label>
+                  <input 
+                    type="text" 
+                    value={editingCourse.assignmentTitle || ""}
+                    onChange={(e) => setEditingCourse({ ...editingCourse, assignmentTitle: e.target.value })}
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", color: "#fff", padding: "8px 12px" }}
+                  />
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "10px" }}>
+                  <label>Description / Guidelines</label>
+                  <textarea 
+                    value={editingCourse.assignmentDescription || ""}
+                    onChange={(e) => setEditingCourse({ ...editingCourse, assignmentDescription: e.target.value })}
+                    rows="3"
+                    style={{ width: "100%", padding: "10px", border: "1px solid var(--border)", borderRadius: "8px", resize: "vertical", outline: "none", background: "rgba(255,255,255,0.05)", color: "#fff" }}
+                  ></textarea>
+                </div>
+
+                <div className="form-group">
+                  <label>Submission Deadline</label>
+                  <input 
+                    type="text" 
+                    value={editingCourse.assignmentDeadline || ""}
+                    onChange={(e) => setEditingCourse({ ...editingCourse, assignmentDeadline: e.target.value })}
+                    style={{ background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", color: "#fff", padding: "8px 12px" }}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group" style={{ border: "1px solid var(--border)", padding: "15px", borderRadius: "8px", background: "rgba(255, 255, 255, 0.01)", marginTop: "15px", maxHeight: "300px", overflowY: "auto" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                  <span style={{ fontWeight: "700", fontSize: "0.9rem", color: "#fff" }}>Course Syllabus & Lessons</span>
+                  <button 
+                    type="button" 
+                    onClick={handleEditAddLesson}
+                    style={{ padding: "4px 10px", fontSize: "0.75rem", background: "var(--primary-light)", color: "var(--primary)", border: "1px solid var(--primary-light)", height: "auto", cursor: "pointer" }}
+                  >
+                    + Add Lesson
+                  </button>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                  {(editingCourse.lessons || []).map((lesson, index) => (
+                    <div key={index} style={{ borderBottom: index < (editingCourse.lessons || []).length - 1 ? "2px solid var(--border)" : "none", paddingBottom: "15px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                      
+                      <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                        <span style={{ fontSize: "0.85rem", color: "#fff", fontWeight: "bold", minWidth: "60px" }}>Lesson {index + 1}:</span>
+                        <input 
+                          type="text"
+                          placeholder={`Lesson ${index + 1} Title`}
+                          value={lesson.title || ""}
+                          onChange={(e) => handleEditLessonFieldChange(index, "title", e.target.value)}
+                          required
+                          style={{ flex: 1, padding: "6px 10px", fontSize: "0.9rem" }}
+                        />
+                        {editingCourse.lessons.length > 1 && (
+                          <button 
+                            type="button" 
+                            onClick={() => handleEditRemoveLesson(index)}
+                            style={{ padding: "6px 10px", background: "rgba(239,68,68,0.1)", color: "var(--danger)", border: "1px solid rgba(239,68,68,0.15)", height: "34px", width: "34px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+
+                      <div style={{ paddingLeft: "68px" }}>
+                        <textarea
+                          placeholder={`Provide lecture content / notes for Lesson ${index + 1}...`}
+                          value={lesson.content || ""}
+                          onChange={(e) => handleEditLessonFieldChange(index, "content", e.target.value)}
+                          rows="2"
+                          style={{ width: "100%", padding: "6px 10px", border: "1px solid var(--border)", borderRadius: "8px", background: "transparent", color: "var(--text-primary)", fontSize: "0.85rem", resize: "vertical", outline: "none" }}
+                        />
+                      </div>                      {/* Lesson Quizzes Section (Multiple Questions) */}
+                      <div style={{ paddingLeft: "68px", display: "flex", flexDirection: "column", gap: "10px", background: "rgba(255,255,255,0.01)", border: "1px dashed rgba(255,255,255,0.08)", padding: "12px", borderRadius: "8px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: "0.8rem", fontWeight: "bold", color: "var(--primary)" }}>📝 Lesson Quiz Questions</span>
+                          <button 
+                            type="button" 
+                            onClick={() => handleEditAddQuizQuestion(index)}
+                            style={{ padding: "2px 6px", fontSize: "0.7rem", background: "var(--primary-light)", color: "var(--primary)", border: "1px solid var(--primary-light)", height: "auto" }}
+                          >
+                            + Add Question
+                          </button>
+                        </div>
+
+                        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                          {(lesson.quizQuestions || []).map((q, qIdx) => (
+                            <div key={qIdx} style={{ background: "rgba(255,255,255,0.02)", padding: "10px", borderRadius: "8px", border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                              
+                              <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                                <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: "bold" }}>Q{qIdx + 1}:</span>
+                                <input 
+                                  type="text"
+                                  placeholder="Quiz Question Text"
+                                  value={q.question || ""}
+                                  onChange={(e) => handleEditQuizQuestionFieldChange(index, qIdx, "question", e.target.value)}
+                                  required
+                                  style={{ flex: 1, padding: "5px 8px", fontSize: "0.8rem" }}
+                                />
+                                {(lesson.quizQuestions || []).length > 1 && (
+                                  <button 
+                                    type="button" 
+                                    onClick={() => handleEditRemoveQuizQuestion(index, qIdx)}
+                                    style={{ padding: "4px 8px", background: "rgba(239,68,68,0.1)", color: "var(--danger)", border: "1px solid rgba(239,68,68,0.15)", height: "26px", width: "26px", display: "flex", alignItems: "center", justifyContent: "center" }}
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px" }}>
+                                <input 
+                                  type="text"
+                                  placeholder="Option 1"
+                                  value={q.option1 || ""}
+                                  onChange={(e) => handleEditQuizQuestionFieldChange(index, qIdx, "option1", e.target.value)}
+                                  required
+                                  style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                                />
+                                <input 
+                                  type="text"
+                                  placeholder="Option 2"
+                                  value={q.option2 || ""}
+                                  onChange={(e) => handleEditQuizQuestionFieldChange(index, qIdx, "option2", e.target.value)}
+                                  required
+                                  style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                                />
+                                <input 
+                                  type="text"
+                                  placeholder="Option 3"
+                                  value={q.option3 || ""}
+                                  onChange={(e) => handleEditQuizQuestionFieldChange(index, qIdx, "option3", e.target.value)}
+                                  required
+                                  style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                                />
+                                <input 
+                                  type="text"
+                                  placeholder="Option 4"
+                                  value={q.option4 || ""}
+                                  onChange={(e) => handleEditQuizQuestionFieldChange(index, qIdx, "option4", e.target.value)}
+                                  required
+                                  style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                                />
+                              </div>
+
+                              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                <span style={{ fontSize: "0.7rem", color: "var(--text-secondary)" }}>Correct Answer:</span>
+                                <select
+                                  value={q.correctAnswer || "Option 1"}
+                                  onChange={(e) => handleEditQuizQuestionFieldChange(index, qIdx, "correctAnswer", e.target.value)}
+                                  style={{ padding: "2px 6px", border: "1px solid var(--border)", borderRadius: "4px", background: "#1e293b", color: "#fff", cursor: "pointer", fontSize: "0.75rem" }}
+                                >
+                                  <option value="Option 1">Option 1</option>
+                                  <option value="Option 2">Option 2</option>
+                                  <option value="Option 3">Option 3</option>
+                                  <option value="Option 4">Option 4</option>
+                                </select>
+                              </div>
+
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>

@@ -35,8 +35,8 @@ public class ProgressController {
     @GetMapping("/stats")
     public ResponseEntity<?> getSystemStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalStudents", userRepository.findAll().stream().filter(u -> "student".equalsIgnoreCase(u.getRole())).count());
-        stats.put("totalInstructors", userRepository.findAll().stream().filter(u -> "instructor".equalsIgnoreCase(u.getRole())).count());
+        stats.put("totalStudents", userRepository.countByRole("student"));
+        stats.put("totalInstructors", userRepository.countByRoleIn(java.util.List.of("instructor", "lecturer")));
         stats.put("totalCourses", courseRepository.count());
         stats.put("totalQuizSubmissions", quizSubmissionRepository.count());
         stats.put("totalAssignmentSubmissions", assignmentSubmissionRepository.count());

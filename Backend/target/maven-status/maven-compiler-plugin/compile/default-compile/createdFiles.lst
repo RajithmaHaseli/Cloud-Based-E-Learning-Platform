@@ -26,6 +26,7 @@ com\elearning\config\SecurityConfig$1.class
 com\elearning\controller\S3Controller.class
 com\elearning\model\Enrollment.class
 com\elearning\model\User.class
+com\elearning\controller\UserController$UserUpdateRequest.class
 com\elearning\repository\CourseRepository.class
 com\elearning\repository\QuizQuestionRepository.class
 com\elearning\service\S3Service$PresignedResponse.class
@@ -41,6 +42,7 @@ com\elearning\controller\AssignmentController.class
 com\elearning\model\LessonProgress.class
 com\elearning\controller\ProgressController.class
 com\elearning\repository\AssignmentSubmissionRepository.class
+com\elearning\controller\AuthController$ResetPasswordRequest.class
 com\elearning\repository\DiscussionPostRepository.class
 com\elearning\service\S3Service.class
 com\elearning\controller\CourseController.class

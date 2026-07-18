@@ -1,12 +1,66 @@
+import { useState } from "react";
+import api from "../services/api";
+
 export default function Profile() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")) || {});
   const role = user?.role?.toUpperCase() || "STUDENT";
+
+  const [name, setName] = useState(user?.name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   // Generate initials for avatar
   const getInitials = (name) => {
     if (!name) return "SL";
     const parts = name.split(" ");
     return parts.map(p => p[0]).join("").substring(0, 2).toUpperCase();
+  };
+
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setSuccessMsg("");
+    setErrorMsg("");
+
+    if (newPassword && newPassword !== confirmPassword) {
+      setErrorMsg("New passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        name,
+        email,
+      };
+
+      if (newPassword) {
+        payload.password = newPassword;
+      }
+
+      const response = await api.put(`/users/${user.id}`, payload);
+      const updatedUser = response.data;
+
+      // Update local storage & component state
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      setSuccessMsg("Profile updated successfully!");
+
+      // Clear password fields
+      setPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.response?.data || "Failed to update profile details.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -67,19 +121,23 @@ export default function Profile() {
         </div>
 
         {/* Right Side: Account Details Panel */}
-        <div className="profile-card" style={{ padding: "40px" }}>
+        <form className="profile-card" style={{ padding: "40px" }} onSubmit={handleUpdateProfile}>
           <h3 style={{ fontSize: "1.35rem", fontWeight: "800", marginBottom: "25px", color: "#fff", borderBottom: "1px solid var(--border)", paddingBottom: "12px" }}>
             Account Credentials & Security
           </h3>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" }}>
+          {successMsg && <div className="success-message" style={{ marginBottom: "20px" }}>{successMsg}</div>}
+          {errorMsg && <div className="error-message" style={{ marginBottom: "20px" }}>{errorMsg}</div>}
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px", marginBottom: "25px" }}>
             <div className="form-group">
               <label>Full Name</label>
               <input 
                 type="text" 
-                value={user?.name || ""} 
-                disabled 
-                style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border)", color: "#94a3b8", cursor: "not-allowed" }}
+                value={name} 
+                onChange={(e) => setName(e.target.value)}
+                required
+                style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border)" }}
               />
             </div>
 
@@ -87,14 +145,15 @@ export default function Profile() {
               <label>Email Address</label>
               <input 
                 type="email" 
-                value={user?.email || ""} 
-                disabled 
-                style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border)", color: "#94a3b8", cursor: "not-allowed" }}
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border)" }}
               />
             </div>
 
             <div className="form-group">
-              <label>Role</label>
+              <label>Role (Not Editable)</label>
               <input 
                 type="text" 
                 value={user?.role || ""} 
@@ -114,12 +173,40 @@ export default function Profile() {
             </div>
           </div>
 
-          <div style={{ marginTop: "30px", background: "rgba(99, 102, 241, 0.04)", border: "1px dashed rgba(99, 102, 241, 0.2)", padding: "20px", borderRadius: "10px" }}>
-            <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
-              📌 <strong>Notice:</strong> Your credentials are secure. To modify your registered email or full name, please contact the system Administrator via console.
-            </p>
+          <h3 style={{ fontSize: "1.2rem", fontWeight: "800", marginBottom: "20px", color: "#fff", borderBottom: "1px solid var(--border)", paddingBottom: "8px" }}>
+            Change Password
+          </h3>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" }}>
+            <div className="form-group">
+              <label>New Password (Optional)</label>
+              <input 
+                type="password" 
+                placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                minLength={6}
+                style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border)" }}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Confirm New Password</label>
+              <input 
+                type="password" 
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={6}
+                style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border)" }}
+              />
+            </div>
           </div>
-        </div>
+
+          <button type="submit" className="submit-btn" disabled={loading} style={{ marginTop: "30px", width: "100%" }}>
+            {loading ? "Updating Account Details..." : "Save Profile Details"}
+          </button>
+        </form>
 
       </div>
     </div>

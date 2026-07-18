@@ -21,7 +21,15 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<User> getAllUsers(@RequestParam(required = false) String role) {
+        if (role != null) {
+            if ("lecturer".equalsIgnoreCase(role)) {
+                List<User> lecturers = new java.util.ArrayList<>(userRepository.findByRole("lecturer"));
+                lecturers.addAll(userRepository.findByRole("instructor"));
+                return lecturers;
+            }
+            return userRepository.findByRole(role.toLowerCase());
+        }
         return userRepository.findAll();
     }
 
@@ -48,6 +56,37 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request) {
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        User user = userOpt.get();
+
+        if (request.getEmail() != null && !request.getEmail().equalsIgnoreCase(user.getEmail())) {
+            if (userRepository.existsByEmail(request.getEmail())) {
+                return ResponseEntity.badRequest().body("Email already registered");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        if (request.getRole() != null) {
+            user.setRole(request.getRole().toLowerCase());
+        }
+
+        if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
+        User saved = userRepository.save(user);
+        return ResponseEntity.ok(saved);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         if (!userRepository.existsById(id)) {
@@ -59,6 +98,25 @@ public class UserController {
 
     public static class RoleUpdateRequest {
         private String role;
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
+    }
+
+    public static class UserUpdateRequest {
+        private String name;
+        private String email;
+        private String password;
+        private String role;
+
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+
+        public String getPassword() { return password; }
+        public void setPassword(String password) { this.password = password; }
+
         public String getRole() { return role; }
         public void setRole(String role) { this.role = role; }
     }

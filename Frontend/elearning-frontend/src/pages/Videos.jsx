@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 
+const getYouTubeEmbedUrl = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    const videoId = match[2];
+    return `https://www.youtube.com/embed/${videoId}`;
+  }
+  return null;
+};
+
 export default function Videos() {
   const [courses, setCourses] = useState([]);
   const [activeCourse, setActiveCourse] = useState(null);
@@ -50,18 +61,32 @@ export default function Videos() {
                   background: "#000000", 
                   borderRadius: "var(--radius-md)", 
                   overflow: "hidden",
-                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)" 
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+                  maxWidth: "800px",
+                  width: "100%"
                 }}
               >
-                <video 
-                  key={activeCourse.video}
-                  controls 
-                  preload="none"
-                  style={{ width: "100%", maxHeight: "500px", display: "block", borderRadius: "10px" }}
-                >
-                  <source src={activeCourse.video} type="video/mp4" />
-                  Your browser does not support HTML5 video streaming.
-                </video>
+                {getYouTubeEmbedUrl(activeCourse.video) ? (
+                  <iframe 
+                    key={activeCourse.video}
+                    src={getYouTubeEmbedUrl(activeCourse.video)} 
+                    title={activeCourse.title}
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                    style={{ width: "100%", aspectRatio: "16/9", objectFit: "contain", background: "#000", display: "block", borderRadius: "10px", border: "none" }}
+                  />
+                ) : (
+                  <video 
+                    key={activeCourse.video}
+                    controls 
+                    preload="none"
+                    style={{ width: "100%", aspectRatio: "16/9", objectFit: "contain", background: "#000", display: "block", borderRadius: "10px" }}
+                  >
+                    <source src={activeCourse.video} type="video/mp4" />
+                    Your browser does not support HTML5 video streaming.
+                  </video>
+                )}
               </div>
 
               <div className="profile-card" style={{ padding: "30px" }}>
