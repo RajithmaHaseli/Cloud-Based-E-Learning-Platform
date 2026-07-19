@@ -1,4 +1,4 @@
-# SkyLearn - Cloud-Based E-Learning Platform
+# SkyLearn - Cloud-Based E-Learning Platform 🌧️🌧️
 
 A scalable cloud-native e-learning platform built with React (frontend) 
 and Spring Boot (backend), deployed on AWS.
@@ -8,14 +8,14 @@ SkyLearn supports course management, student enrollment, video lectures,
 and quiz assessments, deployed using AWS EC2, RDS, S3, and Application 
 Load Balancer.
 
-## Tech Stack
+## Tech Stack ⚛️
 - **Frontend:** React
 - **Backend:** Spring Boot (Java), REST API
 - **Database:** MySQL (Amazon RDS)
 - **Storage:** Amazon S3
 - **Infrastructure:** AWS EC2, ALB, VPC, IAM, CloudWatch
 
-## Core Functions
+## Core Functions 🧑‍💻
 
 ### 1. User Management & Authentication
 - Student and lecturer registration and login
@@ -53,14 +53,14 @@ Load Balancer.
 ## Folder Structure
 - `/Backend` - Spring Boot REST API source code
 - `/Frontend` - React application source code
-- `/aws-lambda-autograde` - Lambda function for auto-grading (if used)
+- `/aws-lambda-autograde` - Lambda function for auto-grading
 
-## Setup Instructions
+## Setup Instructions ⚙️
 1. Clone the repository
 2. Backend: `cd Backend && mvn spring-boot:run`
-3. Frontend: `cd Frontend && npm install && npm start`
+3. Frontend: `cd Frontend && npm install && npm run dev`
 
-## Team Members
+## Team Members 
 - S.H.R.H. Premarathne - 14624
 - P M C N Fernando - 14618
 - P.R.K. De Silva - 11376
