@@ -106,30 +106,26 @@ export default function AddCourse() {
 
   const handleFileUpload = async (file) => {
     try {
-      setUploadProgress("Getting secure upload authorization...");
-      // 1. Get S3 Presigned URL
-      const presignedRes = await api.get(`/s3/presigned-upload?fileName=${encodeURIComponent(file.name)}&contentType=${encodeURIComponent(file.type || "video/mp4")}`);
-      const { uploadUrl, downloadUrl } = presignedRes.data;
+      setUploadProgress("Uploading video file to server...");
+      const formData = new FormData();
+      formData.append("file", file);
 
-      setUploadProgress("Uploading video to cloud S3 bucket...");
-      // 2. Upload file directly to S3 via PUT request
-      const response = await fetch(uploadUrl, {
-        method: "PUT",
+      // Perform a multipart POST upload request to the backend proxy
+      const response = await api.post("/s3/upload", formData, {
         headers: {
-          "Content-Type": file.type || "video/mp4"
+          "Content-Type": "multipart/form-data"
         },
-        body: file
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(`Uploading: ${percentCompleted}%`);
+        }
       });
 
-      if (!response.ok) {
-        throw new Error("Direct S3 upload failed");
-      }
-
       setUploadProgress("Upload complete!");
-      return downloadUrl;
+      return response.data.downloadUrl;
     } catch (err) {
-      console.error(err);
-      setUploadProgress("Upload failed, falling back to default video...");
+      console.error("Video upload failed:", err);
+      setUploadProgress("Upload failed completely.");
       return null;
     }
   };

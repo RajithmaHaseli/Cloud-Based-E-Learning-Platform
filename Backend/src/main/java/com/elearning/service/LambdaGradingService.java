@@ -4,7 +4,9 @@ import jakarta.annotation.PostConstruct;
 import com.elearning.model.QuizQuestion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.lambda.LambdaClient;
@@ -25,6 +27,12 @@ public class LambdaGradingService {
     @Value("${aws.region:us-east-1}")
     private String awsRegion;
 
+    @Value("${aws.access-key:}")
+    private String awsAccessKey;
+
+    @Value("${aws.secret-key:}")
+    private String awsSecretKey;
+
     private LambdaClient lambdaClient;
     private boolean useLocalFallback = false;
 
@@ -35,10 +43,22 @@ public class LambdaGradingService {
     @PostConstruct
     public void init() {
         try {
-            // Attempt to build AWS Lambda Client using default credentials
+            software.amazon.awssdk.auth.credentials.AwsCredentialsProvider credentialsProvider;
+            if (awsAccessKey != null && !awsAccessKey.trim().isEmpty() &&
+                awsSecretKey != null && !awsSecretKey.trim().isEmpty()) {
+                logger.info("Using static AWS credentials for Lambda client.");
+                credentialsProvider = StaticCredentialsProvider.create(
+                    AwsBasicCredentials.create(awsAccessKey, awsSecretKey)
+                );
+            } else {
+                logger.info("Using default AWS credentials provider chain for Lambda client.");
+                credentialsProvider = DefaultCredentialsProvider.create();
+            }
+
+            // Attempt to build AWS Lambda Client using credentials provider
             this.lambdaClient = LambdaClient.builder()
                     .region(Region.of(awsRegion != null ? awsRegion : "us-east-1"))
-                    .credentialsProvider(DefaultCredentialsProvider.create())
+                    .credentialsProvider(credentialsProvider)
                     .build();
             logger.info("AWS Lambda Client initialized successfully with region: " + awsRegion);
         } catch (Exception e) {

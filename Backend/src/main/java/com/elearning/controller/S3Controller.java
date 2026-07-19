@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,9 +34,10 @@ public class S3Controller {
     @GetMapping("/presigned-upload")
     public ResponseEntity<?> getPresignedUploadUrl(
             @RequestParam String fileName,
-            @RequestParam String contentType) {
+            @RequestParam String contentType,
+            @RequestParam(required = false, defaultValue = "false") boolean forceLocal) {
         
-        S3Service.PresignedResponse response = s3Service.generatePresignedUploadUrl(fileName, contentType);
+        S3Service.PresignedResponse response = s3Service.generatePresignedUploadUrl(fileName, contentType, forceLocal);
         Map<String, String> result = new HashMap<>();
         result.put("uploadUrl", response.getUploadUrl());
         result.put("downloadUrl", response.getDownloadUrl());
@@ -85,5 +87,26 @@ public class S3Controller {
         headers.setContentType(MediaType.valueOf("video/mp4"));
         
         return new ResponseEntity<>(fileResource, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadVideo(
+            @RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File is empty");
+        }
+        try {
+            String downloadUrl = s3Service.uploadFileToS3(
+                file.getOriginalFilename(),
+                file.getBytes(),
+                file.getContentType()
+            );
+            Map<String, String> result = new HashMap<>();
+            result.put("downloadUrl", downloadUrl);
+            return ResponseEntity.ok(result);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Upload failed: " + e.getMessage());
+        }
     }
 }
