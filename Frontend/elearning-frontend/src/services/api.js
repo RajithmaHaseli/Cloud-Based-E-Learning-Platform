@@ -1,11 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
+
+// Use environment variable with fallback to EC2 IP
+const API_URL = import.meta.env.VITE_API_URL || 'http://13.49.159.89:8080/api';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8080/api",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 30000,
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 
 export default api;

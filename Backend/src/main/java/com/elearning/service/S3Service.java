@@ -1,5 +1,6 @@
 package com.elearning.service;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
@@ -31,13 +32,18 @@ public class S3Service {
     private boolean useLocalFallback = false;
 
     public S3Service() {
+        // Empty constructor, initialization deferred to @PostConstruct method
+    }
+
+    @PostConstruct
+    public void init() {
         try {
             // Attempt to initialize AWS S3 Presigner using default credentials provider chain
             this.s3Presigner = S3Presigner.builder()
                     .region(Region.of(awsRegion != null ? awsRegion : "us-east-1"))
                     .credentialsProvider(DefaultCredentialsProvider.create())
                     .build();
-            logger.info("AWS S3 Presigner initialized successfully.");
+            logger.info("AWS S3 Presigner initialized successfully with region: " + awsRegion);
         } catch (Exception e) {
             logger.warning("AWS S3 Presigner initialization failed: " + e.getMessage() + ". Enabling Local Fallback emulation.");
             this.useLocalFallback = true;

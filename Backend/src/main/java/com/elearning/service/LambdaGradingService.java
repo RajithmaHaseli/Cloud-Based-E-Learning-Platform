@@ -1,5 +1,6 @@
 package com.elearning.service;
 
+import jakarta.annotation.PostConstruct;
 import com.elearning.model.QuizQuestion;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,13 +29,18 @@ public class LambdaGradingService {
     private boolean useLocalFallback = false;
 
     public LambdaGradingService() {
+        // Empty constructor, initialization deferred to @PostConstruct method
+    }
+
+    @PostConstruct
+    public void init() {
         try {
             // Attempt to build AWS Lambda Client using default credentials
             this.lambdaClient = LambdaClient.builder()
                     .region(Region.of(awsRegion != null ? awsRegion : "us-east-1"))
                     .credentialsProvider(DefaultCredentialsProvider.create())
                     .build();
-            logger.info("AWS Lambda Client initialized successfully.");
+            logger.info("AWS Lambda Client initialized successfully with region: " + awsRegion);
         } catch (Exception e) {
             logger.warning("AWS Lambda Client initialization failed: " + e.getMessage() + ". Enabling local fallback auto-grading.");
             this.useLocalFallback = true;

@@ -678,14 +678,14 @@ export default function CourseDetails() {
             /* Discussion Forum Tab */
             <div style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
               <div className="assignment-card" style={{ padding: "25px", border: "1px solid var(--border)" }}>
-                <h3 style={{ margin: "0 0 15px 0", color: "#fff" }}>Start a Discussion</h3>
+                <h3 style={{ margin: "0 0 15px 0", color: "var(--text-primary)" }}>Start a Discussion</h3>
                 <form onSubmit={handleCreatePost}>
                   <textarea
                     placeholder="Ask a question or share resource materials with the class..."
                     rows="3"
                     value={newPostContent}
                     onChange={(e) => setNewPostContent(e.target.value)}
-                    style={{ width: "100%", background: "var(--background)", border: "1px solid var(--border)", color: "#fff", padding: "12px", borderRadius: "8px", resize: "vertical" }}
+                    style={{ width: "100%", background: "var(--background)", border: "1px solid var(--border)", color: "var(--text-primary)", padding: "12px", borderRadius: "8px", resize: "vertical" }}
                     required
                   ></textarea>
                   <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "10px" }}>
@@ -757,7 +757,7 @@ export default function CourseDetails() {
                                   placeholder="Write a reply..."
                                   value={newCommentContent[post.id] || ""}
                                   onChange={(e) => setNewCommentContent(prev => ({ ...prev, [post.id]: e.target.value }))}
-                                  style={{ flex: 1, background: "var(--background)", border: "1px solid var(--border)", color: "#fff", padding: "8px 12px", borderRadius: "6px" }}
+                                  style={{ flex: 1, background: "var(--background)", border: "1px solid var(--border)", color: "var(--text-primary)", padding: "8px 12px", borderRadius: "6px" }}
                                   required
                                 />
                                 <button className="main-btn" type="submit" style={{ padding: "8px 16px", fontSize: "0.85rem", height: "auto" }}>Reply</button>

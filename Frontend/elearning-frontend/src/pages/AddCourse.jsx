@@ -146,6 +146,10 @@ export default function AddCourse() {
       const s3Url = await handleFileUpload(videoFile);
       if (s3Url) {
         finalVideoUrl = s3Url;
+      } else {
+        alert("Video upload failed. Please verify S3 cloud storage configurations or try pasting a direct link.");
+        setLoading(false);
+        return;
       }
     }
 
@@ -172,7 +176,7 @@ export default function AddCourse() {
       title: courseName,
       description: description,
       instructor: instructor || user.name || "Instructor",
-      video: finalVideoUrl || "https://www.w3schools.com/html/mov_bbb.mp4",
+      video: finalVideoUrl || "",
       approved: true, // Auto publish on add
       assignedLecturerEmail:
         user.role?.toLowerCase() === "lecturer" || user.role?.toLowerCase() === "instructor"
