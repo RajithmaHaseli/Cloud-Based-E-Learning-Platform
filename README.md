@@ -1,4 +1,4 @@
-# SkyLearn - Cloud-Based E-Learning Platform
+# SkyLearn - Cloud-Based E-Learning Platform 🌧️🌧️
 
 A scalable cloud-native e-learning platform built with React (frontend) 
 and Spring Boot (backend), deployed on AWS.
