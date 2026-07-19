@@ -245,7 +245,10 @@ export default function LecturerDashboard() {
   };
 
   const handleStartEditCourse = (c) => {
-    const preparedLessons = (c.lessons || []).map(l => {
+    const preparedLessons = [];
+    const lessonsList = c.lessons || [];
+    for (let i = 0; i < lessonsList.length; i++) {
+      const l = lessonsList[i];
       let parsedQuestions = [];
       try {
         parsedQuestions = l.quizQuestionsJson ? JSON.parse(l.quizQuestionsJson) : [];
@@ -272,11 +275,11 @@ export default function LecturerDashboard() {
           correctAnswer: "Option 1"
         });
       }
-      return {
+      preparedLessons.push({
         ...l,
         quizQuestions: parsedQuestions
-      };
-    });
+      });
+    }
     setEditingCourse({
       ...c,
       lessons: preparedLessons,
