@@ -22,7 +22,7 @@ Load Balancer.
 ## Folder Structure
 - `/Backend` - Spring Boot REST API source code
 - `/Frontend` - React application source code
-- `/aws-lambda-autograde` - Lambda function for auto-grading (if used)
+- `/aws-lambda-autograde` - Lambda function for auto-grading
 
 ## Setup Instructions
 1. Clone the repository
