@@ -94,7 +94,7 @@ export default function Quiz() {
           const options = [q.option1, q.option2, q.option3, q.option4].filter(Boolean);
           return (
             <div className="quiz-card" key={q.id || index} style={{ padding: "30px", display: "flex", flexDirection: "column" }}>
-              <h3 style={{ fontSize: "1.15rem", fontWeight: "800", marginBottom: "15px", color: "#fff" }}>
+              <h3 style={{ fontSize: "1.15rem", fontWeight: "800", marginBottom: "15px", color: "#000" }}>
                 Question {index + 1}: {q.question}
               </h3>
 
